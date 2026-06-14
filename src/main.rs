@@ -109,6 +109,3 @@ fn flash_partition(format: &str, src: &str, dest: &str, zip_path: &str) -> Resul
 
     Ok(())
 }
-
-    Ok(())
-}
