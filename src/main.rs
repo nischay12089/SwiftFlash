@@ -31,6 +31,27 @@ fn main() {
                 "verify_device" => {
                     ui_print(out_fd, "Verifying device...");
                 }
+                "show_progress" => {
+                    // Syntax: show_progress <fraction> <duration_in_seconds>
+                    if parts.len() >= 3 {
+                        let fraction = parts[1];
+                        let duration = parts[2];
+                        let fd_path = format!("/proc/self/fd/{}", out_fd);
+                        if let Ok(mut file) = File::options().write(true).open(fd_path) {
+                            let _ = writeln!(file, "progress {} {}", fraction, duration);
+                        }
+                    }
+                }
+                "set_progress" => {
+                    // Syntax: set_progress <fraction>
+                    if parts.len() >= 2 {
+                        let fraction = parts[1];
+                        let fd_path = format!("/proc/self/fd/{}", out_fd);
+                        if let Ok(mut file) = File::options().write(true).open(fd_path) {
+                            let _ = writeln!(file, "set_progress {}", fraction);
+                        }
+                    }
+                }
                 "package_flash_partition" => {
                     if parts.len() < 4 { continue; }
                     let format = parts[1];
@@ -53,4 +74,3 @@ fn ui_print(fd: &str, message: &str) {
         let _ = writeln!(file, "ui_print");
     }
 }
-
