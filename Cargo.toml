@@ -1,0 +1,10 @@
+[package]
+name = "swiftflash"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+zstd = "0.13"
+flate2 = { version = "1.0", features = ["rust_backend"], default-features = false }
+sevenz-rust = "0.5"
+
