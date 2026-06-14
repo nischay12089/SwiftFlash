@@ -1,16 +1,16 @@
 ui_print ==============================================
-ui_print =              SwiftFlash Installer          =
+ui_print              OxygenOS 16.0.7
 ui_print ==============================================
-ui_print   Flashing OxygenOS for Poco F7 (Onyx)
+ui_print              For POCO F7 aka onyx
+ui_print              From OnePlus 15
+ui_print                    By
+ui_print              Crafters Projects
 ui_print ==============================================
 ui_print  
 
-ui_print  - Verifying device...
 verify_device onyx
 
-# Instantly set the progress bar to 10%
 set_progress 0.1
-
 ui_print  - Flashing standard partitions (A/B slots)...
 
 package_flash_partition raw images/boot.img /dev/block/bootdevice/by-name/boot_a
@@ -40,18 +40,14 @@ set_progress 0.7
 ui_print  - Decompressing and flashing Super partition...
 ui_print  - (This will take a few minutes...)
 
-# Tell recovery to slowly fill the next 30% of the bar over 180 seconds
 show_progress 0.3 180
 
-# ==============================================================
-# NOTE: Leave the ONE you are using uncommented. 
-# Put a '#' in front of the ones you are NOT using.
 # ==============================================================
 package_flash_partition zstd images/super.bin.zst /dev/block/bootdevice/by-name/super
 # package_flash_partition gzip images/super.img.gz /dev/block/bootdevice/by-name/super
 # package_flash_partition 7z images/super.7z /dev/block/bootdevice/by-name/super
+# ==============================================================
 
-# Instantly set the bar to 100% when finished
 set_progress 1.0
 
 ui_print  
