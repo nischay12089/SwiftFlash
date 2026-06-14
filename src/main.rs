@@ -11,6 +11,17 @@ fn main() {
     let zip_path = &args[3];
     let script_path = "/tmp/updater-script"; 
 
+    // 1. Open the recovery command pipe ONCE and keep it open
+    let fd_path = format!("/proc/self/fd/{}", out_fd);
+    let mut pipe = OpenOptions::new().write(true).open(&fd_path)
+        .expect("Failed to open recovery command pipe");
+
+    // 2. HARDCODED BRANDING (Cannot be removed by changing the updater-script)
+    ui_print(&mut pipe, "==============================================");
+    ui_print(&mut pipe, "=                SwiftFlasher                =");
+    ui_print(&mut pipe, "==============================================");
+    ui_print(&mut pipe, " ");
+
     // Extract updater-script from zip
     let _ = Command::new("unzip").args(&["-p", zip_path, "META-INF/com/google/android/updater-script"]).output()
         .and_then(|out| fs::write(script_path, out.stdout));
@@ -26,19 +37,19 @@ fn main() {
             match command {
                 "ui_print" => {
                     let msg = parts[1..].join(" ");
-                    ui_print(out_fd, &msg);
+                    ui_print(&mut pipe, &msg);
                 }
                 "verify_device" => {
-                    ui_print(out_fd, "Verifying device...");
+                    ui_print(&mut pipe, "Verifying device...");
                 }
                 "show_progress" => {
                     if parts.len() >= 3 {
-                        ui_print_cmd(out_fd, &format!("progress {} {}", parts[1], parts[2]));
+                        ui_print_cmd(&mut pipe, &format!("progress {} {}", parts[1], parts[2]));
                     }
                 }
                 "set_progress" => {
                     if parts.len() >= 2 {
-                        ui_print_cmd(out_fd, &format!("set_progress {}", parts[1]));
+                        ui_print_cmd(&mut pipe, &format!("set_progress {}", parts[1]));
                     }
                 }
                 "package_flash_partition" => {
@@ -47,12 +58,11 @@ fn main() {
                     let src = parts[2];
                     let dest = parts[3];
                     
-                    ui_print(out_fd, &format!("Flashing {}...", src));
+                    ui_print(&mut pipe, &format!("Flashing {}...", src));
                     
-                    // THIS IS THE REAL FLASHING ENGINE
                     if let Err(e) = flash_partition(format, src, dest, zip_path) {
-                        ui_print(out_fd, &format!("ERROR: Failed to flash {}: {}", src, e));
-                        std::process::exit(1); // Abort installation on failure
+                        ui_print(&mut pipe, &format!("ERROR: Failed to flash {}: {}", src, e));
+                        std::process::exit(1); 
                     }
                 }
                 _ => {}
@@ -61,37 +71,27 @@ fn main() {
     }
 }
 
-// Function to print text to the screen
-fn ui_print(fd: &str, message: &str) {
-    let fd_path = format!("/proc/self/fd/{}", fd);
-    if let Ok(mut file) = OpenOptions::new().append(true).open(fd_path) {
-        let _ = writeln!(file, "ui_print {}", message);
-        let _ = writeln!(file, "ui_print");
-    }
+// Write to the pipe and instantly flush it to the UI
+fn ui_print(pipe: &mut File, message: &str) {
+    let _ = writeln!(pipe, "ui_print {}", message);
+    let _ = writeln!(pipe, "ui_print");
+    let _ = pipe.flush();
 }
 
-// Function to send invisible commands (like progress bars) to recovery
-fn ui_print_cmd(fd: &str, cmd: &str) {
-    let fd_path = format!("/proc/self/fd/{}", fd);
-    if let Ok(mut file) = OpenOptions::new().append(true).open(fd_path) {
-        let _ = writeln!(file, "{}", cmd);
-    }
+// Send hidden progress commands to the pipe and flush
+fn ui_print_cmd(pipe: &mut File, cmd: &str) {
+    let _ = writeln!(pipe, "{}", cmd);
+    let _ = pipe.flush();
 }
 
-// The core function that actually reads the zip, decompresses, and writes to the block
 fn flash_partition(format: &str, src: &str, dest: &str, zip_path: &str) -> Result<(), String> {
-    // 1. Open the zip file natively in Rust
     let zip_file = File::open(zip_path).map_err(|e| e.to_string())?;
     let mut archive = zip::ZipArchive::new(zip_file).map_err(|e| e.to_string())?;
-    
-    // 2. Find the requested image (boot.img, super.bin.zst, etc.)
     let mut source_stream = archive.by_name(src).map_err(|e| format!("File {} not in zip: {}", src, e))?;
 
-    // 3. Open the block device for writing (DO NOT TRUNCATE block devices)
     let mut out_file = OpenOptions::new().write(true).open(dest)
         .map_err(|e| format!("Cannot open block device {}: {}", dest, e))?;
 
-    // 4. Route to the correct decompressor and copy the bytes
     match format {
         "raw" => {
             std::io::copy(&mut source_stream, &mut out_file).map_err(|e| e.to_string())?;
@@ -106,6 +106,9 @@ fn flash_partition(format: &str, src: &str, dest: &str, zip_path: &str) -> Resul
         }
         _ => return Err(format!("Unsupported format: {}", format)),
     }
+
+    Ok(())
+}
 
     Ok(())
 }
