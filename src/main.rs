@@ -36,8 +36,14 @@ fn main() {
 
             match command {
                 "ui_print" => {
-                    let msg = parts[1..].join(" ");
-                    ui_print(&mut pipe, &msg);
+                    // Grab everything after "ui_print", preserving all extra spaces!
+                    let msg = if line.len() > 8 {
+                        let text = &line[8..];
+                        if text.starts_with(' ') { &text[1..] } else { text }
+                    } else {
+                        ""
+                    };
+                    ui_print(&mut pipe, msg);
                 }
                 "verify_device" => {
                     ui_print(&mut pipe, "Verifying device...");
