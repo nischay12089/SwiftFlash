@@ -18,7 +18,8 @@ fn main() {
 
     // 2. HARDCODED BRANDING (Cannot be removed by changing the updater-script)
     ui_print(&mut pipe, "==============================================");
-    ui_print(&mut pipe, "=                SwiftFlasher                =");
+    ui_print(&mut pipe, "=               Swift-fLASHER                =");
+    ui_print(&mut pipe, "=     By Instantnoodlep & Nischay_12089      =");
     ui_print(&mut pipe, "==============================================");
     ui_print(&mut pipe, " ");
 
