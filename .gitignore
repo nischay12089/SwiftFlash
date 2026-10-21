@@ -1,0 +1,15 @@
+/target/
+/dist/
+/update-binary
+__pycache__/
+*.pyc
+
+# Keep the package template source-only. Users supply ROM images and platform-tools.
+/fastboot-template/images/*
+!/fastboot-template/images/.gitkeep
+/fastboot-template/bin/windows/*
+!/fastboot-template/bin/windows/README.md
+/fastboot-template/bin/linux/*
+!/fastboot-template/bin/linux/README.md
+/fastboot-template/bin/macos/*
+!/fastboot-template/bin/macos/README.md

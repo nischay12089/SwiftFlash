@@ -1,0 +1,7 @@
+
+Device  : POCO F7 (onyx)
+Version : HyperOS 3.0
+Android : 16.0
+Type    : HyperOS 3.0.3 IN
+Modder  : by @Nischay_12089
+

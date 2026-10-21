@@ -1,0 +1,48 @@
+# POCO F7 / onyx package template. Supply matching extracted ROM images.
+# Order and literal *_ab names follow the reference package's fastboot design.
+# The regional modem branch requires the appropriate image; no fallback occurs.
+product onyx
+set_active a
+flash abl_ab images/abl.img
+flash aop_ab images/aop.img
+flash aop_config_ab images/aop_config.img
+flash bluetooth_ab images/bluetooth.img
+flash countrycode_ab images/countrycode.img
+flash cpucp_ab images/cpucp.img
+flash cpucp_dtb_ab images/cpucp_dtb.img
+flash devcfg_ab images/devcfg.img
+flash dsp_ab images/dsp.img
+flash dtbo_ab images/dtbo.img
+flash featenabler_ab images/featenabler.img
+flash hyp_ab images/hyp.img
+flash idmanager_ab images/idmanager.img
+flash imagefv_ab images/imagefv.img
+flash keymaster_ab images/keymaster.img
+flash modem_ab images/modem.img
+flash_region modemfirmware_ab CN images/modemfirmware.img images/modemfirmware_ww.img
+flash multiimgqti_ab images/multiimgqti.img
+flash pvmfw_ab images/pvmfw.img
+flash qupfw_ab images/qupfw.img
+flash shrm_ab images/shrm.img
+flash soccp_dcd_ab images/soccp_dcd.img
+flash soccp_debug_ab images/soccp_debug.img
+flash spuservice_ab images/spuservice.img
+flash tz_ab images/tz.img
+flash uefi_ab images/uefi.img
+flash uefisecapp_ab images/uefisecapp.img
+flash vbmeta_ab images/vbmeta.img
+flash vbmeta_system_ab images/vbmeta_system.img
+flash vm-bootsys_ab images/vm-bootsys.img
+flash xbl_ab images/xbl.img
+flash xbl_config_ab images/xbl_config.img
+flash xbl_ramdump_ab images/xbl_ramdump.img
+flash boot_ab images/boot.img
+flash init_boot_ab images/init_boot.img
+flash vendor_boot_ab images/vendor_boot.img
+flash recovery_ab images/ofox.img
+reboot fastboot
+flash super images/super.img
+reboot bootloader
+wipe metadata
+wipe userdata
+reboot system
